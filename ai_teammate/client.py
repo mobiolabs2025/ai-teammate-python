@@ -69,6 +69,7 @@ class AITeammate:
             base_url=self.base_url,
             headers=self._default_headers(),
             timeout=timeout,
+            follow_redirects=True,
         )
         self._async_client: Optional[httpx.AsyncClient] = None
         
@@ -82,7 +83,7 @@ class AITeammate:
         return {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "ai-teammate-python/0.1.0",
+            "User-Agent": "ai-teammate-python/0.1.1",
         }
     
     def _get_async_client(self) -> httpx.AsyncClient:
@@ -92,6 +93,7 @@ class AITeammate:
                 base_url=self.base_url,
                 headers=self._default_headers(),
                 timeout=self.timeout,
+                follow_redirects=True,
             )
         return self._async_client
     
