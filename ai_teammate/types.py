@@ -79,22 +79,35 @@ class ToolCall(BaseModel):
 
 class ChatResponse(BaseModel):
     """Chat response"""
-    content: str
+    content: Optional[str] = Field(None, alias="response")
+    response: Optional[str] = None
     agent_id: Optional[str] = None
     agent_name: Optional[str] = None
     tool_calls: List[ToolCall] = Field(default_factory=list)
     usage: Optional[Dict[str, int]] = None
-    
+
+    def __init__(self, **data: Any):
+        # Normalize: accept both 'content' and 'response' fields
+        if "response" in data and "content" not in data:
+            data["content"] = data["response"]
+        elif "content" in data and "response" not in data:
+            data["response"] = data["content"]
+        super().__init__(**data)
+
     class Config:
         extra = "ignore"
+        populate_by_name = True
 
 
 class StreamChunk(BaseModel):
     """Streaming chunk"""
-    type: Literal["text", "tool_start", "tool_end", "error", "done"]
+    type: str  # text, tool_start, tool_end, error, done, meta, etc.
     content: Optional[str] = None
     tool: Optional[str] = None
     args: Optional[Dict[str, Any]] = None
+
+    class Config:
+        extra = "ignore"
 
 
 class Memory(BaseModel):

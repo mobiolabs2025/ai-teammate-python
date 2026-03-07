@@ -97,10 +97,10 @@ class AITeammate:
             )
         return self._async_client
     
-    def _handle_response(self, response: httpx.Response) -> dict:
+    def _handle_response(self, response: httpx.Response):
         """Handle API response and raise appropriate exceptions"""
         if response.status_code == 200:
-            return response.json()
+            return response.json()  # may return dict or list
         
         try:
             error_data = response.json()
@@ -167,16 +167,13 @@ class AITeammate:
         """
         from .types import ChatResponse
         
-        data = {
-            "message": message,
-            "agent_id": agent_id,
-        }
+        data = {"message": message}
         if context:
             data["context"] = context
-        
-        response = self.request("POST", "/chat", json=data)
+
+        response = self.request("POST", f"/agents/{agent_id}/chat", json=data)
         return ChatResponse(**response)
-    
+
     async def achat(
         self,
         message: str,
@@ -185,15 +182,12 @@ class AITeammate:
     ) -> "ChatResponse":
         """Async version of chat()"""
         from .types import ChatResponse
-        
-        data = {
-            "message": message,
-            "agent_id": agent_id,
-        }
+
+        data = {"message": message}
         if context:
             data["context"] = context
-        
-        response = await self.arequest("POST", "/chat", json=data)
+
+        response = await self.arequest("POST", f"/agents/{agent_id}/chat", json=data)
         return ChatResponse(**response)
     
     def chat_stream(
@@ -216,21 +210,19 @@ class AITeammate:
         from .types import StreamChunk
         import json
         
-        data = {
-            "message": message,
-            "agent_id": agent_id,
-        }
+        data = {"message": message}
         if context:
             data["context"] = context
-        
+
         with self._client.stream(
             "POST",
-            "/chat/stream",
+            f"/agents/{agent_id}/chat/stream",
             json=data,
         ) as response:
             if response.status_code != 200:
+                response.read()
                 self._handle_response(response)
-            
+
             for line in response.iter_lines():
                 if line.startswith("data: "):
                     try:
@@ -238,7 +230,7 @@ class AITeammate:
                         yield StreamChunk(**chunk_data)
                     except json.JSONDecodeError:
                         continue
-    
+
     async def achat_stream(
         self,
         message: str,
@@ -248,18 +240,15 @@ class AITeammate:
         """Async version of chat_stream()"""
         from .types import StreamChunk
         import json
-        
-        data = {
-            "message": message,
-            "agent_id": agent_id,
-        }
+
+        data = {"message": message}
         if context:
             data["context"] = context
-        
+
         client = self._get_async_client()
         async with client.stream(
             "POST",
-            "/chat/stream",
+            f"/agents/{agent_id}/chat/stream",
             json=data,
         ) as response:
             if response.status_code != 200:

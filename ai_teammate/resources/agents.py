@@ -58,9 +58,9 @@ class AgentsResource:
             "/agents",
             params={"page": page, "per_page": per_page},
         )
-        agents_data = response.get("agents", response.get("items", []))
+        agents_data = response if isinstance(response, list) else response.get("agents", response.get("items", []))
         return [Agent(**a) for a in agents_data]
-    
+
     async def alist(
         self,
         page: int = 1,
@@ -72,7 +72,7 @@ class AgentsResource:
             "/agents",
             params={"page": page, "per_page": per_page},
         )
-        agents_data = response.get("agents", response.get("items", []))
+        agents_data = response if isinstance(response, list) else response.get("agents", response.get("items", []))
         return [Agent(**a) for a in agents_data]
     
     def get(self, agent_id: str) -> Agent:

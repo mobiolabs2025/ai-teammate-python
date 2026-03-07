@@ -40,13 +40,13 @@ class TeamsResource:
             List of Team objects
         """
         response = self._client.request("GET", "/teams")
-        teams_data = response.get("teams", response.get("items", []))
+        teams_data = response if isinstance(response, list) else response.get("teams", response.get("items", []))
         return [Team(**t) for t in teams_data]
-    
+
     async def alist(self) -> List[Team]:
         """Async version of list()"""
         response = await self._client.arequest("GET", "/teams")
-        teams_data = response.get("teams", response.get("items", []))
+        teams_data = response if isinstance(response, list) else response.get("teams", response.get("items", []))
         return [Team(**t) for t in teams_data]
     
     def get(self, team_id: str) -> Team:
@@ -144,13 +144,13 @@ class TeamsResource:
             List of Agent objects
         """
         response = self._client.request("GET", f"/teams/{team_id}/agents")
-        agents_data = response.get("agents", response.get("items", []))
+        agents_data = response if isinstance(response, list) else response.get("agents", response.get("items", []))
         return [Agent(**a) for a in agents_data]
-    
+
     async def aget_agents(self, team_id: str) -> List[Agent]:
         """Async version of get_agents()"""
         response = await self._client.arequest("GET", f"/teams/{team_id}/agents")
-        agents_data = response.get("agents", response.get("items", []))
+        agents_data = response if isinstance(response, list) else response.get("agents", response.get("items", []))
         return [Agent(**a) for a in agents_data]
     
     def add_agent(
@@ -225,12 +225,12 @@ class TeamsResource:
         Returns:
             ChatResponse with the team's reply
         """
-        data = {"message": message, "team_id": team_id}
+        data = {"message": message}
         if mode:
             data["mode"] = mode
-        response = self._client.request("POST", "/teams/chat", json=data)
+        response = self._client.request("POST", f"/teams/{team_id}/chat", json=data)
         return ChatResponse(**response)
-    
+
     async def achat(
         self,
         team_id: str,
@@ -238,8 +238,8 @@ class TeamsResource:
         mode: Optional[ChatMode] = None,
     ) -> ChatResponse:
         """Async version of chat()"""
-        data = {"message": message, "team_id": team_id}
+        data = {"message": message}
         if mode:
             data["mode"] = mode
-        response = await self._client.arequest("POST", "/teams/chat", json=data)
+        response = await self._client.arequest("POST", f"/teams/{team_id}/chat", json=data)
         return ChatResponse(**response)
