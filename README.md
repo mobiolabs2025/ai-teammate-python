@@ -8,6 +8,49 @@ Official Python SDK for [AI Teammate](https://agent.mobiolabs.net) - Build and d
 pip install ai-teammate
 ```
 
+## 🚀 Getting Started
+
+### Step 1: 회원가입
+1. [agent.mobiolabs.net](https://agent.mobiolabs.net) 접속
+2. Google 또는 Kakao로 간편 가입
+
+### Step 2: API 키 발급
+1. 로그인 후 우측 상단 **Settings** 클릭
+2. **API Keys** 탭 선택
+3. **Generate New Key** 클릭
+4. 생성된 키 복사 (`at_xxxx...` 형식)
+
+> ⚠️ API 키는 한 번만 표시됩니다. 안전한 곳에 보관하세요!
+
+### Step 3: SDK 설치 & 첫 에이전트 만들기
+
+```bash
+pip install ai-teammate
+```
+
+```python
+from ai_teammate import AITeammate
+
+# API 키로 클라이언트 초기화
+client = AITeammate(api_key="at_your_key_here")
+
+# 첫 에이전트 만들기
+agent = client.agents.create(
+    name="My First Agent",
+    system_prompt="You are a helpful assistant that speaks Korean.",
+)
+print(f"✅ 에이전트 생성 완료! ID: {agent.id}")
+
+# 에이전트와 대화
+response = client.chat("안녕하세요!", agent_id=agent.id)
+print(f"🤖 {response.content}")
+```
+
+### Step 4: 포털에서 확인
+SDK로 생성한 에이전트는 [포털 대시보드](https://agent.mobiolabs.net)에서 확인하고 관리할 수 있습니다.
+
+---
+
 ## Quick Start
 
 ```python
