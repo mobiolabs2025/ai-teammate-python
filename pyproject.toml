@@ -40,8 +40,8 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://agent.mobiolabs.net"
-Documentation = "https://github.com/mobiolabs2025/ai-teammate-python"
+Homepage = "https://ai-teammate.net"
+Documentation = "https://ai-teammate.net/docs/api"
 Repository = "https://github.com/mobiolabs2025/ai-teammate-python"
 
 [tool.hatch.build.targets.wheel]

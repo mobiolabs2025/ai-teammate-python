@@ -16,7 +16,7 @@ from .resources.teams import TeamsResource
 from .resources.memories import MemoriesResource
 
 
-DEFAULT_BASE_URL = "https://agent.mobiolabs.net/api"
+DEFAULT_BASE_URL = "https://ai-teammate.net/api"
 DEFAULT_TIMEOUT = 30.0
 
 
@@ -54,7 +54,7 @@ class AITeammate:
         
         Args:
             api_key: Your AI Teammate API key (starts with 'at_')
-            base_url: API base URL (default: https://agent.mobiolabs.net/api)
+            base_url: API base URL (default: https://ai-teammate.net/api)
             timeout: Request timeout in seconds
         """
         if not api_key:
