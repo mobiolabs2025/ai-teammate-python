@@ -2,7 +2,7 @@
 
 from typing import Optional, List, TYPE_CHECKING, Literal
 
-from ..types import Team, TeamCreate, ChatResponse, Agent
+from ..types import Team, TeamCreate, ChatResponse, TeamChatResponse, Agent
 
 if TYPE_CHECKING:
     from ..client import AITeammate
@@ -213,33 +213,33 @@ class TeamsResource:
         team_id: str,
         message: str,
         mode: Optional[ChatMode] = None,
-    ) -> ChatResponse:
+    ) -> TeamChatResponse:
         """
         Chat with a team.
-        
+
         Args:
             team_id: The team ID
             message: The message to send
             mode: Override chat mode for this message
-        
+
         Returns:
-            ChatResponse with the team's reply
+            TeamChatResponse with each agent's reply and a summary
         """
         data = {"message": message}
         if mode:
             data["mode"] = mode
         response = self._client.request("POST", f"/teams/{team_id}/chat", json=data)
-        return ChatResponse(**response)
+        return TeamChatResponse(**response)
 
     async def achat(
         self,
         team_id: str,
         message: str,
         mode: Optional[ChatMode] = None,
-    ) -> ChatResponse:
+    ) -> TeamChatResponse:
         """Async version of chat()"""
         data = {"message": message}
         if mode:
             data["mode"] = mode
         response = await self._client.arequest("POST", f"/teams/{team_id}/chat", json=data)
-        return ChatResponse(**response)
+        return TeamChatResponse(**response)

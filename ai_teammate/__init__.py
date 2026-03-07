@@ -23,10 +23,12 @@ from .types import (
     Team,
     Message,
     ChatResponse,
+    TeamChatResponse,
+    AgentResponse,
     Memory,
 )
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 __all__ = [
     "AITeammate",
     "AITeammateError",
@@ -38,5 +40,7 @@ __all__ = [
     "Team",
     "Message",
     "ChatResponse",
+    "TeamChatResponse",
+    "AgentResponse",
     "Memory",
 ]

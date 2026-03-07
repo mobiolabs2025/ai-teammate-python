@@ -99,6 +99,35 @@ class ChatResponse(BaseModel):
         populate_by_name = True
 
 
+class AgentResponse(BaseModel):
+    """Individual agent response in team chat"""
+    agent_id: str
+    agent_name: str
+    content: str
+    avatar_url: Optional[str] = None
+
+    class Config:
+        extra = "ignore"
+
+
+class TeamChatResponse(BaseModel):
+    """Team chat response with multiple agent responses"""
+    responses: List[AgentResponse] = Field(default_factory=list)
+    summary: Optional[str] = None
+    mode: Optional[str] = None
+    auto_selected: bool = False
+    memory_saved: bool = False
+    byok_error: Optional[str] = None
+
+    @property
+    def content(self) -> Optional[str]:
+        """Get summary as content for convenience"""
+        return self.summary
+
+    class Config:
+        extra = "ignore"
+
+
 class StreamChunk(BaseModel):
     """Streaming chunk"""
     type: str  # text, tool_start, tool_end, error, done, meta, etc.

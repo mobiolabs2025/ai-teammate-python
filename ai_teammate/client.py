@@ -83,7 +83,7 @@ class AITeammate:
         return {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "ai-teammate-python/0.1.2",
+            "User-Agent": "ai-teammate-python/0.1.3",
         }
     
     def _get_async_client(self) -> httpx.AsyncClient:
