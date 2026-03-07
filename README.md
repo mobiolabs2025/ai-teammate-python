@@ -1,6 +1,6 @@
 # AI Teammate Python SDK
 
-Official Python SDK for [AI Teammate](https://agent.mobiolabs.net) - Build and deploy AI agents with ease.
+Official Python SDK for [AI Teammate](https://ai-teammate.net) - Build and deploy AI agents with ease.
 
 ## Installation
 
@@ -11,7 +11,7 @@ pip install ai-teammate
 ## 🚀 Getting Started
 
 ### Step 1: 회원가입
-1. [agent.mobiolabs.net](https://agent.mobiolabs.net) 접속
+1. [ai-teammate.net](https://ai-teammate.net) 접속
 2. Google 또는 Kakao로 간편 가입
 
 ### Step 2: API 키 발급
@@ -47,7 +47,7 @@ print(f"🤖 {response.content}")
 ```
 
 ### Step 4: 포털에서 확인
-SDK로 생성한 에이전트는 [포털 대시보드](https://agent.mobiolabs.net)에서 확인하고 관리할 수 있습니다.
+SDK로 생성한 에이전트는 [포털 대시보드](https://ai-teammate.net)에서 확인하고 관리할 수 있습니다.
 
 ---
 
@@ -116,9 +116,42 @@ team = client.teams.create(
 client.teams.add_agent(team.id, "agent_1")
 client.teams.add_agent(team.id, "agent_2")
 
-# Team chat
+# Team chat (multi-agent discussion)
 response = client.teams.chat(team.id, "Brainstorm startup ideas!")
 print(response.content)
+
+# Chat with specific mode
+response = client.teams.chat(
+    team.id,
+    "Should we use microservices?",
+    mode="debate",  # Agents debate pros and cons
+)
+```
+
+#### Team Chat Modes
+
+| Mode | Description |
+|------|-------------|
+| `round-robin` | Agents respond sequentially, referencing previous opinions |
+| `parallel` | All agents respond independently |
+| `debate` | Pro/con discussion between agents |
+| `brainstorm` | Idea generation with voting |
+| `expert` | Auto-selects the best agent for the question |
+
+### 🔑 Team API Keys
+
+Generate API keys scoped to a team from **Team Settings > API** on the web portal.
+
+```python
+# Use a team API key
+client = AITeammate(api_key="at_your_team_key")
+
+# Chat with the team
+response = client.teams.chat("team_id", "Analyze this data")
+print(response.content)
+
+# List team agents
+agents = client.teams.list_agents("team_id")
 ```
 
 ### 🧠 Memories
@@ -184,7 +217,7 @@ except AITeammateError as e:
 ```python
 client = AITeammate(
     api_key="at_xxx",
-    base_url="https://agent.mobiolabs.net/api",  # Custom API URL
+    base_url="https://ai-teammate.net/api",  # Custom API URL
     timeout=30.0,  # Request timeout
 )
 ```
@@ -205,7 +238,7 @@ client = AITeammate(
 | Resource | Methods |
 |----------|---------|
 | `agents` | `list`, `get`, `create`, `update`, `delete`, `chat` |
-| `teams` | `list`, `get`, `create`, `delete`, `add_agent`, `remove_agent`, `chat` |
+| `teams` | `list`, `get`, `create`, `delete`, `add_agent`, `remove_agent`, `list_agents`, `chat` |
 | `memories` | `list`, `get`, `create`, `delete`, `search` |
 
 ## License
@@ -214,6 +247,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Links
 
-- 🌐 [AI Teammate Platform](https://agent.mobiolabs.net)
-- 📚 [API Documentation](https://agent.mobiolabs.net/docs)
+- 🌐 [AI Teammate Platform](https://ai-teammate.net)
+- 📚 [API Documentation](https://ai-teammate.net/docs)
 - 🐛 [Issue Tracker](https://github.com/mobiolabs2025/ai-teammate-python/issues)
