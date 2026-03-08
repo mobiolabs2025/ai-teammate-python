@@ -160,6 +160,73 @@ class MemoryCreate(BaseModel):
     tags: List[str] = Field(default_factory=list)
 
 
+class ShareLink(BaseModel):
+    """Shared agent link"""
+    id: str
+    agent_id: str
+    share_code: str
+    share_url: Optional[str] = None
+    include_memory: bool = False
+    memory_sharing: Dict[str, Any] = Field(default_factory=dict)
+    max_messages: int = 100
+    require_end_user_auth: bool = True
+    allow_file_upload: bool = False
+    is_active: bool = True
+    view_count: int = 0
+    message_count: int = 0
+    created_at: Optional[datetime] = None
+    expires_at: Optional[datetime] = None
+
+    class Config:
+        extra = "ignore"
+
+
+class ShareAgentInfo(BaseModel):
+    """Agent info returned from share info endpoint"""
+    id: str
+    name: str
+    description: Optional[str] = None
+    avatar_url: Optional[str] = None
+
+    class Config:
+        extra = "ignore"
+
+
+class ShareSettings(BaseModel):
+    """Share settings returned from share info endpoint"""
+    max_messages: int = 100
+    message_count: int = 0
+    expires_at: Optional[str] = None
+    require_end_user_auth: bool = False
+    allow_file_upload: bool = False
+
+    class Config:
+        extra = "ignore"
+
+
+class ShareInfo(BaseModel):
+    """Public info about a shared agent"""
+    agent: ShareAgentInfo
+    share: ShareSettings
+
+    class Config:
+        extra = "ignore"
+
+
+class Document(BaseModel):
+    """Uploaded document"""
+    id: str
+    filename: str
+    file_type: str
+    file_size: int
+    status: str = "processing"
+    chunk_count: int = 0
+    agent_id: Optional[str] = None
+
+    class Config:
+        extra = "ignore"
+
+
 class Skill(BaseModel):
     """Available skill"""
     id: str

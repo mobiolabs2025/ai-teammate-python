@@ -154,6 +154,53 @@ print(response.content)
 agents = client.teams.list_agents("team_id")
 ```
 
+### 🔗 Share Links
+
+```python
+# Create a share link for your agent
+share = client.shares.create(
+    agent_id="abc123",
+    require_sign_in=True,       # Require end-user authentication
+    allow_file_upload=True,     # Allow visitors to upload documents
+    include_memory=False,       # Share agent memory with visitors
+    max_messages=100,           # Message limit (0 = unlimited)
+    expires_in_days=30,         # Link expiration (None = permanent)
+)
+print(f"Share URL: https://ai-teammate.net{share.share_url}")
+
+# List share links
+shares = client.shares.list("abc123")
+
+# Delete a share link
+client.shares.delete("abc123", share.id)
+```
+
+#### Using Share Links (no API key required)
+
+```python
+from ai_teammate import AITeammate
+
+# No API key needed for public share operations
+client = AITeammate()
+
+# Get shared agent info
+info = client.shares.get_info("share_code")
+print(f"Agent: {info.agent.name}")
+print(f"File upload: {info.share.allow_file_upload}")
+
+# Chat with shared agent
+response = client.shares.chat("share_code", "Hello!")
+print(response.content)
+
+# Upload document (if allowed)
+doc = client.shares.upload_document("share_code", "./report.pdf")
+print(f"Uploaded: {doc.filename} ({doc.chunk_count} chunks)")
+
+# With end-user authentication (for persistent history)
+response = client.shares.chat("share_code", "Hello!", end_user_token="token")
+history = client.shares.get_history("share_code", end_user_token="token")
+```
+
 ### 🧠 Memories
 
 ```python
@@ -240,6 +287,7 @@ client = AITeammate(
 | `agents` | `list`, `get`, `create`, `update`, `delete`, `chat` |
 | `teams` | `list`, `get`, `create`, `delete`, `add_agent`, `remove_agent`, `list_agents`, `chat` |
 | `memories` | `list`, `get`, `create`, `delete`, `search` |
+| `shares` | `create`, `list`, `delete`, `get_info`, `chat`, `upload_document`, `get_history` |
 
 ## License
 

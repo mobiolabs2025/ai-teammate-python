@@ -14,6 +14,7 @@ from .exceptions import (
 from .resources.agents import AgentsResource
 from .resources.teams import TeamsResource
 from .resources.memories import MemoriesResource
+from .resources.shares import SharesResource
 
 
 DEFAULT_BASE_URL = "https://ai-teammate.net/api"
@@ -45,21 +46,19 @@ class AITeammate:
     
     def __init__(
         self,
-        api_key: str,
+        api_key: Optional[str] = None,
         base_url: str = DEFAULT_BASE_URL,
         timeout: float = DEFAULT_TIMEOUT,
     ):
         """
         Initialize AI Teammate client.
-        
+
         Args:
-            api_key: Your AI Teammate API key (starts with 'at_')
+            api_key: Your AI Teammate API key (starts with 'at_'). Optional for
+                     public share operations (shares.get_info, shares.chat, etc.)
             base_url: API base URL (default: https://ai-teammate.net/api)
             timeout: Request timeout in seconds
         """
-        if not api_key:
-            raise AuthenticationError("API key is required")
-        
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
@@ -77,14 +76,17 @@ class AITeammate:
         self.agents = AgentsResource(self)
         self.teams = TeamsResource(self)
         self.memories = MemoriesResource(self)
+        self.shares = SharesResource(self)
     
     def _default_headers(self) -> dict:
         """Default request headers"""
-        return {
-            "Authorization": f"Bearer {self.api_key}",
+        headers: dict = {
             "Content-Type": "application/json",
-            "User-Agent": "ai-teammate-python/0.1.3",
+            "User-Agent": "ai-teammate-python/0.2.0",
         }
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        return headers
     
     def _get_async_client(self) -> httpx.AsyncClient:
         """Get or create async client"""
@@ -134,9 +136,20 @@ class AITeammate:
         **kwargs,
     ) -> dict:
         """Make a synchronous API request"""
-        response = self._client.request(method, path, **kwargs)
+        if "files" in kwargs:
+            # File upload: let httpx set Content-Type for multipart
+            kwargs.setdefault("headers", {})
+            kwargs["headers"] = {
+                **{k: v for k, v in self._default_headers().items() if k != "Content-Type"},
+                **kwargs["headers"],
+            }
+            response = httpx.Client(timeout=self.timeout, follow_redirects=True).request(
+                method, f"{self.base_url}{path}", **kwargs,
+            )
+        else:
+            response = self._client.request(method, path, **kwargs)
         return self._handle_response(response)
-    
+
     async def arequest(
         self,
         method: str,
@@ -144,8 +157,17 @@ class AITeammate:
         **kwargs,
     ) -> dict:
         """Make an asynchronous API request"""
-        client = self._get_async_client()
-        response = await client.request(method, path, **kwargs)
+        if "files" in kwargs:
+            kwargs.setdefault("headers", {})
+            kwargs["headers"] = {
+                **{k: v for k, v in self._default_headers().items() if k != "Content-Type"},
+                **kwargs["headers"],
+            }
+            async with httpx.AsyncClient(timeout=self.timeout, follow_redirects=True) as c:
+                response = await c.request(method, f"{self.base_url}{path}", **kwargs)
+        else:
+            client = self._get_async_client()
+            response = await client.request(method, path, **kwargs)
         return self._handle_response(response)
     
     def chat(
