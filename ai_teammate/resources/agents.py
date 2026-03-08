@@ -1,8 +1,9 @@
 """Agents Resource"""
 
+from pathlib import Path
 from typing import Optional, List, TYPE_CHECKING
 
-from ..types import Agent, AgentCreate, AgentUpdate, ChatResponse, StreamChunk
+from ..types import Agent, AgentCreate, AgentUpdate, ChatResponse, StreamChunk, Document
 
 if TYPE_CHECKING:
     from ..client import AITeammate
@@ -276,3 +277,68 @@ class AgentsResource:
         """Async version of chat_stream()"""
         async for chunk in self._client.achat_stream(message, agent_id=agent_id, context=context):
             yield chunk
+
+    # ------------------------------------------------------------------
+    # Document management (RAG)
+    # ------------------------------------------------------------------
+
+    def upload_document(self, agent_id: str, file_path: str) -> Document:
+        """
+        Upload a document for agent RAG.
+        Uploaded documents are indexed and available to all users chatting with this agent.
+
+        Args:
+            agent_id: The agent ID
+            file_path: Local path to the file (pdf, txt, md, docx, csv)
+        """
+        path = Path(file_path)
+        if not path.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        with open(path, "rb") as f:
+            response = self._client.request(
+                "POST",
+                f"/agents/{agent_id}/documents/upload",
+                content=None,
+                json=None,
+                files={"file": (path.name, f)},
+            )
+        return Document(**response)
+
+    async def aupload_document(self, agent_id: str, file_path: str) -> Document:
+        """Async version of upload_document()"""
+        path = Path(file_path)
+        if not path.exists():
+            raise FileNotFoundError(f"File not found: {file_path}")
+
+        with open(path, "rb") as f:
+            response = await self._client.arequest(
+                "POST",
+                f"/agents/{agent_id}/documents/upload",
+                content=None,
+                json=None,
+                files={"file": (path.name, f)},
+            )
+        return Document(**response)
+
+    def list_documents(self, agent_id: str) -> List[Document]:
+        """List all documents for an agent."""
+        response = self._client.request("GET", f"/agents/{agent_id}/documents")
+        items = response if isinstance(response, list) else response.get("documents", response.get("items", []))
+        return [Document(**d) for d in items]
+
+    async def alist_documents(self, agent_id: str) -> List[Document]:
+        """Async version of list_documents()"""
+        response = await self._client.arequest("GET", f"/agents/{agent_id}/documents")
+        items = response if isinstance(response, list) else response.get("documents", response.get("items", []))
+        return [Document(**d) for d in items]
+
+    def delete_document(self, agent_id: str, doc_id: str) -> bool:
+        """Delete a document from an agent."""
+        self._client.request("DELETE", f"/agents/{agent_id}/documents/{doc_id}")
+        return True
+
+    async def adelete_document(self, agent_id: str, doc_id: str) -> bool:
+        """Async version of delete_document()"""
+        await self._client.arequest("DELETE", f"/agents/{agent_id}/documents/{doc_id}")
+        return True

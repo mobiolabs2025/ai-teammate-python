@@ -15,6 +15,7 @@ from .resources.agents import AgentsResource
 from .resources.teams import TeamsResource
 from .resources.memories import MemoriesResource
 from .resources.shares import SharesResource
+from .resources.end_users import EndUsersResource
 
 
 DEFAULT_BASE_URL = "https://ai-teammate.net/api"
@@ -78,13 +79,14 @@ class AITeammate:
         self.teams = TeamsResource(self)
         self.memories = MemoriesResource(self)
         self.shares = SharesResource(self)
+        self.end_users = EndUsersResource(self)
     
     def _default_headers(self) -> dict:
         """Default request headers"""
         return {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "ai-teammate-python/0.2.2",
+            "User-Agent": "ai-teammate-python/0.3.0",
         }
     
     def _get_async_client(self) -> httpx.AsyncClient:

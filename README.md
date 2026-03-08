@@ -2,7 +2,7 @@
 
 Official Python SDK for [AI Teammate](https://ai-teammate.net) - Build and deploy AI agents with ease.
 
-> **v0.2.2** — Share Links with file upload & document RAG
+> **v0.2.3** — Agent document upload (shared RAG knowledge)
 
 ## Installation
 
@@ -76,6 +76,26 @@ agent = client.agents.update(
 # Delete an agent
 client.agents.delete("abc123")
 ```
+
+### Agent Documents (Shared RAG Knowledge)
+
+Upload documents directly to an agent. These become shared knowledge available to **all users** chatting with the agent (via direct chat or share links).
+
+```python
+# Upload a document (pdf, txt, md, docx, csv)
+doc = client.agents.upload_document("abc123", "./menu.txt")
+print(f"Uploaded: {doc.filename} ({doc.chunk_count} chunks)")
+
+# List documents
+docs = client.agents.list_documents("abc123")
+for d in docs:
+    print(f"{d.filename} ({d.chunk_count} chunks)")
+
+# Delete a document
+client.agents.delete_document("abc123", doc.id)
+```
+
+> **Agent documents vs Share documents**: Agent documents (`agents.upload_document`) are shared knowledge for all users. Share documents (`shares.upload_document`) are per-user uploads scoped to a share link session.
 
 ### Chat
 
@@ -292,7 +312,7 @@ client = AITeammate(
 
 | Resource | Methods |
 |----------|---------|
-| `agents` | `list`, `get`, `create`, `update`, `delete` |
+| `agents` | `list`, `get`, `create`, `update`, `delete`, `upload_document`, `list_documents`, `delete_document` |
 | `teams` | `list`, `get`, `create`, `delete`, `add_agent`, `remove_agent`, `list_agents`, `chat` |
 | `memories` | `list`, `get`, `create`, `delete`, `search` |
 | `shares` | `create`, `list`, `delete`, `get_info`, `chat`, `upload_document`, `get_history` |

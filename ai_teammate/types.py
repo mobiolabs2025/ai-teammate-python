@@ -245,3 +245,51 @@ class PaginatedResponse(BaseModel):
     page: int = 1
     per_page: int = 20
     has_more: bool = False
+
+
+# ------------------------------------------------------------------
+# End-User types
+# ------------------------------------------------------------------
+
+class EndUser(BaseModel):
+    """End-User identity (authenticated visitor of shared agents)"""
+    id: str
+    email: str
+    name: str
+    avatar_url: Optional[str] = None
+    avatar_style: Optional[str] = None
+    memory_sharing: str = "profile_only"
+    created_at: Optional[datetime] = None
+
+    class Config:
+        extra = "ignore"
+
+
+class AuthResult(BaseModel):
+    """Authentication result with token and user info"""
+    status: str
+    token: Optional[str] = None
+    end_user: Optional[EndUser] = None
+    message: Optional[str] = None
+
+    class Config:
+        extra = "ignore"
+
+
+class VerifyResult(BaseModel):
+    """Email verification result"""
+    status: str
+    email: Optional[str] = None
+    needs_password: Optional[bool] = None
+
+    class Config:
+        extra = "ignore"
+
+
+class ValidationResult(BaseModel):
+    """Token validation result"""
+    valid: bool
+    end_user: Optional[EndUser] = None
+
+    class Config:
+        extra = "ignore"
