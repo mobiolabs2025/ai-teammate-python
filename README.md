@@ -175,30 +175,36 @@ shares = client.shares.list("abc123")
 client.shares.delete("abc123", share.id)
 ```
 
-#### Using Share Links (no API key required)
+#### Full Flow: Create Agent → Share → Use
 
 ```python
 from ai_teammate import AITeammate
 
-# No API key needed for public share operations
-client = AITeammate()
+client = AITeammate(api_key="at_your_api_key")
 
-# Get shared agent info
-info = client.shares.get_info("share_code")
-print(f"Agent: {info.agent.name}")
-print(f"File upload: {info.share.allow_file_upload}")
+# 1. Create an agent
+agent = client.agents.create(
+    name="Customer Support Bot",
+    system_prompt="You are a friendly customer support agent.",
+)
 
-# Chat with shared agent
-response = client.shares.chat("share_code", "Hello!")
+# 2. Create a share link
+share = client.shares.create(
+    agent_id=agent.id,
+    allow_file_upload=True,
+    require_sign_in=False,
+    max_messages=100,
+)
+print(f"Share URL: https://ai-teammate.net{share.share_url}")
+
+# 3. Use the share link (same client, same API key)
+info = client.shares.get_info(share.share_code)
+response = client.shares.chat(share.share_code, "Hello!")
 print(response.content)
 
-# Upload document (if allowed)
-doc = client.shares.upload_document("share_code", "./report.pdf")
+# 4. Upload a document (if allowed)
+doc = client.shares.upload_document(share.share_code, "./faq.pdf")
 print(f"Uploaded: {doc.filename} ({doc.chunk_count} chunks)")
-
-# With end-user authentication (for persistent history)
-response = client.shares.chat("share_code", "Hello!", end_user_token="token")
-history = client.shares.get_history("share_code", end_user_token="token")
 ```
 
 ### 🧠 Memories

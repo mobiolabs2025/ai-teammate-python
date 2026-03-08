@@ -46,7 +46,7 @@ class AITeammate:
     
     def __init__(
         self,
-        api_key: Optional[str] = None,
+        api_key: str,
         base_url: str = DEFAULT_BASE_URL,
         timeout: float = DEFAULT_TIMEOUT,
     ):
@@ -54,11 +54,12 @@ class AITeammate:
         Initialize AI Teammate client.
 
         Args:
-            api_key: Your AI Teammate API key (starts with 'at_'). Optional for
-                     public share operations (shares.get_info, shares.chat, etc.)
+            api_key: Your AI Teammate API key (starts with 'at_')
             base_url: API base URL (default: https://ai-teammate.net/api)
             timeout: Request timeout in seconds
         """
+        if not api_key:
+            raise AuthenticationError("API key is required")
         self.api_key = api_key
         self.base_url = base_url.rstrip("/")
         self.timeout = timeout
@@ -80,13 +81,11 @@ class AITeammate:
     
     def _default_headers(self) -> dict:
         """Default request headers"""
-        headers: dict = {
+        return {
+            "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
-            "User-Agent": "ai-teammate-python/0.2.0",
+            "User-Agent": "ai-teammate-python/0.2.1",
         }
-        if self.api_key:
-            headers["Authorization"] = f"Bearer {self.api_key}"
-        return headers
     
     def _get_async_client(self) -> httpx.AsyncClient:
         """Get or create async client"""
