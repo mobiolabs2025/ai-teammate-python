@@ -95,13 +95,13 @@ class SharesResource:
     def list(self, agent_id: str) -> List[ShareLink]:
         """List all share links for an agent."""
         response = self._client.request("GET", f"/agents/{agent_id}/shares")
-        items = response if isinstance(response, list) else response.get("items", [])
+        items = response if isinstance(response, list) else response.get("shares", response.get("items", []))
         return [ShareLink(**s) for s in items]
 
     async def alist(self, agent_id: str) -> List[ShareLink]:
         """Async version of list()"""
         response = await self._client.arequest("GET", f"/agents/{agent_id}/shares")
-        items = response if isinstance(response, list) else response.get("items", [])
+        items = response if isinstance(response, list) else response.get("shares", response.get("items", []))
         return [ShareLink(**s) for s in items]
 
     def delete(self, agent_id: str, share_id: str) -> bool:
