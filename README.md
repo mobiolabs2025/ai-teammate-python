@@ -2,27 +2,29 @@
 
 Official Python SDK for [AI Teammate](https://ai-teammate.net) - Build and deploy AI agents with ease.
 
+> **v0.2.2** — Share Links with file upload & document RAG
+
 ## Installation
 
 ```bash
 pip install ai-teammate
 ```
 
-## 🚀 Getting Started
+## Getting Started
 
-### Step 1: 회원가입
-1. [ai-teammate.net](https://ai-teammate.net) 접속
-2. Google 또는 Kakao로 간편 가입
+### Step 1: Sign Up
+1. Go to [ai-teammate.net](https://ai-teammate.net)
+2. Sign up with Google or Kakao
 
-### Step 2: API 키 발급
-1. 로그인 후 우측 상단 **Settings** 클릭
-2. **API Keys** 탭 선택
-3. **Generate New Key** 클릭
-4. 생성된 키 복사 (`at_xxxx...` 형식)
+### Step 2: Get API Key
+1. Go to **Settings** (top-right)
+2. Select **API Keys** tab
+3. Click **Generate New Key**
+4. Copy the key (`at_xxxx...` format)
 
-> ⚠️ API 키는 한 번만 표시됩니다. 안전한 곳에 보관하세요!
+> API keys are shown only once. Store it securely!
 
-### Step 3: SDK 설치 & 첫 에이전트 만들기
+### Step 3: Install & Create Your First Agent
 
 ```bash
 pip install ai-teammate
@@ -31,42 +33,28 @@ pip install ai-teammate
 ```python
 from ai_teammate import AITeammate
 
-# API 키로 클라이언트 초기화
 client = AITeammate(api_key="at_your_key_here")
 
-# 첫 에이전트 만들기
+# Create an agent
 agent = client.agents.create(
     name="My First Agent",
     system_prompt="You are a helpful assistant that speaks Korean.",
 )
-print(f"✅ 에이전트 생성 완료! ID: {agent.id}")
+print(f"Agent created: {agent.id}")
 
-# 에이전트와 대화
-response = client.chat("안녕하세요!", agent_id=agent.id)
-print(f"🤖 {response.content}")
-```
-
-### Step 4: 포털에서 확인
-SDK로 생성한 에이전트는 [포털 대시보드](https://ai-teammate.net)에서 확인하고 관리할 수 있습니다.
-
----
-
-## Quick Start
-
-```python
-from ai_teammate import AITeammate
-
-# Initialize client
-client = AITeammate(api_key="at_your_api_key")
-
-# Chat with an agent
-response = client.chat("Hello!", agent_id="your_agent_id")
+# Chat with the agent
+response = client.chat("Hello!", agent_id=agent.id)
 print(response.content)
 ```
 
+### Step 4: Check on Portal
+Agents created via SDK appear on the [portal dashboard](https://ai-teammate.net).
+
+---
+
 ## Features
 
-### 🤖 Agent Management
+### Agent Management
 
 ```python
 # List all agents
@@ -76,7 +64,6 @@ agents = client.agents.list()
 agent = client.agents.create(
     name="My Assistant",
     system_prompt="You are a helpful assistant.",
-    model="claude-3-sonnet",
 )
 
 # Update an agent
@@ -90,7 +77,7 @@ agent = client.agents.update(
 client.agents.delete("abc123")
 ```
 
-### 💬 Chat
+### Chat
 
 ```python
 # Simple chat
@@ -101,9 +88,18 @@ print(response.content)
 for chunk in client.chat_stream("Tell me a story", agent_id="abc123"):
     if chunk.type == "text":
         print(chunk.content, end="", flush=True)
+
+# Conversation context
+context = []
+response = client.chat("My name is Alice", agent_id="abc123")
+context.append({"role": "user", "content": "My name is Alice"})
+context.append({"role": "assistant", "content": response.content})
+
+response = client.chat("What's my name?", agent_id="abc123", context=context)
+print(response.content)  # "Alice"
 ```
 
-### 👥 Team Chat
+### Team Chat
 
 ```python
 # Create a team
@@ -118,14 +114,10 @@ client.teams.add_agent(team.id, "agent_2")
 
 # Team chat (multi-agent discussion)
 response = client.teams.chat(team.id, "Brainstorm startup ideas!")
-print(response.content)
+print(response.summary)
 
-# Chat with specific mode
-response = client.teams.chat(
-    team.id,
-    "Should we use microservices?",
-    mode="debate",  # Agents debate pros and cons
-)
+for r in response.responses:
+    print(f"[{r.agent_name}] {r.content}")
 ```
 
 #### Team Chat Modes
@@ -138,26 +130,12 @@ response = client.teams.chat(
 | `brainstorm` | Idea generation with voting |
 | `expert` | Auto-selects the best agent for the question |
 
-### 🔑 Team API Keys
+### Share Links
 
-Generate API keys scoped to a team from **Team Settings > API** on the web portal.
-
-```python
-# Use a team API key
-client = AITeammate(api_key="at_your_team_key")
-
-# Chat with the team
-response = client.teams.chat("team_id", "Analyze this data")
-print(response.content)
-
-# List team agents
-agents = client.teams.list_agents("team_id")
-```
-
-### 🔗 Share Links
+Share your agent with external users via a link. Supports end-user authentication, file upload, and document-based RAG chat.
 
 ```python
-# Create a share link for your agent
+# Create a share link
 share = client.shares.create(
     agent_id="abc123",
     require_sign_in=True,       # Require end-user authentication
@@ -168,14 +146,29 @@ share = client.shares.create(
 )
 print(f"Share URL: https://ai-teammate.net{share.share_url}")
 
-# List share links
-shares = client.shares.list("abc123")
+# Get share info
+info = client.shares.get_info(share.share_code)
+print(f"Agent: {info.agent.name}")
+print(f"File upload: {info.share.allow_file_upload}")
 
-# Delete a share link
+# Chat via share link
+response = client.shares.chat(share.share_code, "Hello!")
+print(response.content)
+
+# Upload a document (triggers RAG indexing)
+doc = client.shares.upload_document(share.share_code, "./report.pdf")
+print(f"Uploaded: {doc.filename} ({doc.chunk_count} chunks)")
+
+# Chat about the document (RAG search)
+response = client.shares.chat(share.share_code, "Summarize the report")
+print(response.content)  # Agent answers using uploaded document
+
+# List / delete share links
+shares = client.shares.list("abc123")
 client.shares.delete("abc123", share.id)
 ```
 
-#### Full Flow: Create Agent → Share → Use
+#### Full Flow: Create Agent → Share → Upload → RAG Chat
 
 ```python
 from ai_teammate import AITeammate
@@ -197,17 +190,16 @@ share = client.shares.create(
 )
 print(f"Share URL: https://ai-teammate.net{share.share_url}")
 
-# 3. Use the share link (same client, same API key)
-info = client.shares.get_info(share.share_code)
-response = client.shares.chat(share.share_code, "Hello!")
-print(response.content)
-
-# 4. Upload a document (if allowed)
+# 3. Upload FAQ document
 doc = client.shares.upload_document(share.share_code, "./faq.pdf")
-print(f"Uploaded: {doc.filename} ({doc.chunk_count} chunks)")
+print(f"Indexed: {doc.chunk_count} chunks")
+
+# 4. Chat — agent answers using the uploaded document
+response = client.shares.chat(share.share_code, "What is the refund policy?")
+print(response.content)
 ```
 
-### 🧠 Memories
+### Memories
 
 ```python
 # Add memory to agent
@@ -224,6 +216,16 @@ memories = client.memories.list(agent_id="abc123")
 results = client.memories.search(agent_id="abc123", query="preferences")
 ```
 
+## API Key Types
+
+| Type | Issued From | Scope |
+|------|------------|-------|
+| **Global** | Settings page | All operations |
+| **Agent-scoped** | Agent settings | Chat, read, memory for that agent only |
+| **Team-scoped** | Team settings | Chat, read for that team only |
+
+> Agent/Team scoped keys are useful for embedding agents in external apps with restricted access.
+
 ## Async Support
 
 All methods have async versions prefixed with `a`:
@@ -235,7 +237,7 @@ async def main():
     async with AITeammate(api_key="at_xxx") as client:
         # Async chat
         response = await client.achat("Hello!", agent_id="abc123")
-        
+
         # Async streaming
         async for chunk in client.achat_stream("Tell me a story", agent_id="abc123"):
             print(chunk.content, end="")
@@ -271,7 +273,7 @@ except AITeammateError as e:
 client = AITeammate(
     api_key="at_xxx",
     base_url="https://ai-teammate.net/api",  # Custom API URL
-    timeout=30.0,  # Request timeout
+    timeout=30.0,  # Request timeout in seconds
 )
 ```
 
@@ -290,7 +292,7 @@ client = AITeammate(
 
 | Resource | Methods |
 |----------|---------|
-| `agents` | `list`, `get`, `create`, `update`, `delete`, `chat` |
+| `agents` | `list`, `get`, `create`, `update`, `delete` |
 | `teams` | `list`, `get`, `create`, `delete`, `add_agent`, `remove_agent`, `list_agents`, `chat` |
 | `memories` | `list`, `get`, `create`, `delete`, `search` |
 | `shares` | `create`, `list`, `delete`, `get_info`, `chat`, `upload_document`, `get_history` |
@@ -301,6 +303,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Links
 
-- 🌐 [AI Teammate Platform](https://ai-teammate.net)
-- 📚 [API Documentation](https://ai-teammate.net/docs)
-- 🐛 [Issue Tracker](https://github.com/mobiolabs2025/ai-teammate-python/issues)
+- [AI Teammate Platform](https://ai-teammate.net)
+- [API Documentation](https://ai-teammate.net/docs)
+- [PyPI Package](https://pypi.org/project/ai-teammate/)
+- [Issue Tracker](https://github.com/mobiolabs2025/ai-teammate-python/issues)
