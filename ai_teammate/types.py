@@ -271,6 +271,7 @@ class AuthResult(BaseModel):
     token: Optional[str] = None
     end_user: Optional[EndUser] = None
     message: Optional[str] = None
+    is_new: Optional[bool] = None
 
     class Config:
         extra = "ignore"

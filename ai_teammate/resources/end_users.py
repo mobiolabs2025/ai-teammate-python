@@ -259,3 +259,111 @@ class EndUsersResource:
             json={"email": email},
         )
         return AuthResult(**response)
+
+    # ------------------------------------------------------------------
+    # Google OAuth
+    # ------------------------------------------------------------------
+
+    def google_auth_url(
+        self,
+        agent_id: str,
+        *,
+        source: Optional[str] = None,
+        redirect_uri: Optional[str] = None,
+        return_url: Optional[str] = None,
+    ) -> dict:
+        """
+        Get Google OAuth URL for end-user login/registration.
+
+        Args:
+            agent_id: The agent ID
+            source: Signup source identifier (e.g. "kiosk:burger-palace")
+            redirect_uri: Custom OAuth redirect URI (optional)
+            return_url: URL to redirect after auth with token in query params (optional)
+
+        Returns:
+            dict with ``url`` (Google OAuth URL) and ``state``
+        """
+        params: dict = {}
+        if source:
+            params["source"] = source
+        if redirect_uri:
+            params["redirect_uri"] = redirect_uri
+        if return_url:
+            params["return_url"] = return_url
+
+        return self._client.request(
+            "GET", f"/end-user/auth/{agent_id}/google", params=params,
+        )
+
+    async def agoogle_auth_url(
+        self,
+        agent_id: str,
+        *,
+        source: Optional[str] = None,
+        redirect_uri: Optional[str] = None,
+        return_url: Optional[str] = None,
+    ) -> dict:
+        """Async version of google_auth_url()"""
+        params: dict = {}
+        if source:
+            params["source"] = source
+        if redirect_uri:
+            params["redirect_uri"] = redirect_uri
+        if return_url:
+            params["return_url"] = return_url
+
+        return await self._client.arequest(
+            "GET", f"/end-user/auth/{agent_id}/google", params=params,
+        )
+
+    def google_callback(
+        self,
+        agent_id: str,
+        *,
+        code: str,
+        source: Optional[str] = None,
+        redirect_uri: Optional[str] = None,
+    ) -> AuthResult:
+        """
+        Exchange Google OAuth code for end-user token.
+
+        Args:
+            agent_id: The agent ID
+            code: Authorization code from Google
+            source: Signup source identifier
+            redirect_uri: The redirect_uri used in the auth request
+
+        Returns:
+            AuthResult with token, end_user, and is_new flag
+        """
+        data: dict = {"code": code, "agent_id": agent_id}
+        if source:
+            data["source"] = source
+        if redirect_uri:
+            data["redirect_uri"] = redirect_uri
+
+        response = self._client.request(
+            "POST", "/end-user/auth/google/callback", json=data,
+        )
+        return AuthResult(**response)
+
+    async def agoogle_callback(
+        self,
+        agent_id: str,
+        *,
+        code: str,
+        source: Optional[str] = None,
+        redirect_uri: Optional[str] = None,
+    ) -> AuthResult:
+        """Async version of google_callback()"""
+        data: dict = {"code": code, "agent_id": agent_id}
+        if source:
+            data["source"] = source
+        if redirect_uri:
+            data["redirect_uri"] = redirect_uri
+
+        response = await self._client.arequest(
+            "POST", "/end-user/auth/google/callback", json=data,
+        )
+        return AuthResult(**response)
