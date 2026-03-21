@@ -2,7 +2,7 @@
 
 Official Python SDK for [AI Teammate](https://ai-teammate.net) - Build and deploy AI agents with ease.
 
-> **v0.2.3** — Agent document upload (shared RAG knowledge)
+> **v0.3.1** — End-User authentication, Google OAuth, agent documents (RAG)
 
 ## Installation
 
@@ -219,6 +219,81 @@ response = client.shares.chat(share.share_code, "What is the refund policy?")
 print(response.content)
 ```
 
+### End-User Authentication
+
+When a share link has `require_sign_in=True`, visitors must register and log in. The SDK provides a complete end-user auth flow.
+
+#### Email Registration
+
+```python
+# 1. Register (sends verification code to email)
+result = client.end_users.register(
+    agent_id="abc123",
+    name="John",
+    email="john@example.com",
+)
+
+# 2. Verify email with code
+result = client.end_users.verify(
+    agent_id="abc123",
+    email="john@example.com",
+    code="123456",
+)
+
+# 3. Set password → get auth token
+auth = client.end_users.set_password(
+    agent_id="abc123",
+    email="john@example.com",
+    password="secure_password",
+)
+token = auth.token
+
+# 4. Chat with end-user token
+response = client.shares.chat(share_code, "Hello!", end_user_token=token)
+```
+
+#### Login
+
+```python
+auth = client.end_users.login(
+    agent_id="abc123",
+    email="john@example.com",
+    password="secure_password",
+)
+token = auth.token
+```
+
+#### Google OAuth
+
+```python
+# Get Google OAuth URL
+result = client.end_users.google_auth_url(
+    agent_id="abc123",
+    source="my-app",
+    return_url="https://myapp.com/callback",
+)
+print(result["url"])  # Redirect user to this URL
+
+# Exchange code for token (in your callback handler)
+auth = client.end_users.google_callback(
+    agent_id="abc123",
+    code="google_auth_code",
+)
+token = auth.token
+print(f"New user: {auth.is_new}")
+```
+
+#### Token Validation & Password Reset
+
+```python
+# Validate token
+result = client.end_users.validate(agent_id="abc123", token=token)
+print(f"Valid: {result.valid}, User: {result.end_user.name}")
+
+# Forgot password (sends reset code)
+client.end_users.forgot_password(agent_id="abc123", email="john@example.com")
+```
+
 ### Memories
 
 ```python
@@ -316,6 +391,7 @@ client = AITeammate(
 | `teams` | `list`, `get`, `create`, `delete`, `add_agent`, `remove_agent`, `list_agents`, `chat` |
 | `memories` | `list`, `get`, `create`, `delete`, `search` |
 | `shares` | `create`, `list`, `delete`, `get_info`, `chat`, `upload_document`, `get_history` |
+| `end_users` | `register`, `verify`, `set_password`, `login`, `validate`, `forgot_password`, `google_auth_url`, `google_callback` |
 
 ## License
 
