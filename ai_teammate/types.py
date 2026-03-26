@@ -294,3 +294,30 @@ class ValidationResult(BaseModel):
 
     class Config:
         extra = "ignore"
+
+
+# ------------------------------------------------------------------
+# Bookmark types (unified)
+# ------------------------------------------------------------------
+
+class Bookmark(BaseModel):
+    """End-user bookmark"""
+    id: str
+    url: str
+    title: Optional[str] = None
+    description: Optional[str] = None
+    og_image: Optional[str] = None
+    tags: List[str] = Field(default_factory=list)
+    category: Optional[str] = None
+    source: str = "app"
+    created_at: Optional[datetime] = None
+
+    class Config:
+        extra = "ignore"
+
+
+class BookmarkCreate(BaseModel):
+    """Create bookmark request"""
+    url: str
+    title: Optional[str] = None
+    tags: Optional[List[str]] = None

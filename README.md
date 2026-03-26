@@ -2,7 +2,7 @@
 
 Official Python SDK for [AI Teammate](https://ai-teammate.net) - Build and deploy AI agents with ease.
 
-> **v0.3.1** — End-User authentication, Google OAuth, agent documents (RAG)
+> **v0.4.0** — End-User bookmarks (unified API), Google OAuth, agent documents (RAG)
 
 ## Installation
 
@@ -392,6 +392,7 @@ client = AITeammate(
 | `memories` | `list`, `get`, `create`, `delete`, `search` |
 | `shares` | `create`, `list`, `delete`, `get_info`, `chat`, `upload_document`, `get_history` |
 | `end_users` | `register`, `verify`, `set_password`, `login`, `validate`, `forgot_password`, `google_auth_url`, `google_callback` |
+| `bookmarks` | `save`, `list`, `delete` |
 
 ## License
 

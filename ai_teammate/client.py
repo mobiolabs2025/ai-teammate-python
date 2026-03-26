@@ -16,6 +16,7 @@ from .resources.teams import TeamsResource
 from .resources.memories import MemoriesResource
 from .resources.shares import SharesResource
 from .resources.end_users import EndUsersResource
+from .resources.bookmarks import BookmarksResource
 
 
 DEFAULT_BASE_URL = "https://ai-teammate.net/api"
@@ -80,6 +81,7 @@ class AITeammate:
         self.memories = MemoriesResource(self)
         self.shares = SharesResource(self)
         self.end_users = EndUsersResource(self)
+        self.bookmarks = BookmarksResource(self)
     
     def _default_headers(self) -> dict:
         """Default request headers"""

@@ -5,6 +5,7 @@ from .teams import TeamsResource
 from .memories import MemoriesResource
 from .shares import SharesResource
 from .end_users import EndUsersResource
+from .bookmarks import BookmarksResource
 
 __all__ = [
     "AgentsResource",
@@ -12,4 +13,5 @@ __all__ = [
     "MemoriesResource",
     "SharesResource",
     "EndUsersResource",
+    "BookmarksResource",
 ]

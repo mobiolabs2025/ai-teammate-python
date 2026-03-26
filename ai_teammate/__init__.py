@@ -29,9 +29,10 @@ from .types import (
     ShareLink,
     ShareInfo,
     Document,
+    Bookmark,
 )
 
-__version__ = "0.2.3"
+__version__ = "0.4.0"
 __all__ = [
     "AITeammate",
     "AITeammateError",
@@ -49,4 +50,5 @@ __all__ = [
     "ShareLink",
     "ShareInfo",
     "Document",
+    "Bookmark",
 ]

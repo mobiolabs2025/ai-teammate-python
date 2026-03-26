@@ -4,12 +4,13 @@ build-backend = "hatchling.build"
 
 [project]
 name = "ai-teammate"
-version = "0.3.1"
+version = "0.4.0"
 description = "Python SDK for AI Teammate - Build and deploy AI agents"
 readme = "README.md"
 license = "MIT"
 authors = [
-    { name = "MobioLabs", email = "dev@mobiolabs.net" }
+    { name = "MobioLabs", email = "dev@mobiolabs.net" },
+    { name = "mobiolabs", email = "mobiolabs2025@gmail.com" },
 ]
 keywords = ["ai", "agent", "llm", "chatbot", "sdk"]
 classifiers = [
