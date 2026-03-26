@@ -197,3 +197,41 @@ class BookmarksResource:
             headers=self._headers(end_user_token),
         )
         return True
+
+    # ── Share ───────────────────────────────────────────
+
+    def share(
+        self,
+        agent_id: str,
+        bookmark_id: str,
+        end_user_token: str,
+    ) -> dict:
+        """
+        Share a bookmark via public link.
+
+        Args:
+            agent_id: The agent ID
+            bookmark_id: The bookmark ID
+            end_user_token: End-user JWT token
+
+        Returns:
+            Dict with share_code and share_url
+        """
+        return self._client.request(
+            "POST",
+            f"/bookmarks/end-user/{agent_id}/{bookmark_id}/share",
+            headers=self._headers(end_user_token),
+        )
+
+    async def ashare(
+        self,
+        agent_id: str,
+        bookmark_id: str,
+        end_user_token: str,
+    ) -> dict:
+        """Async version of share()"""
+        return await self._client.arequest(
+            "POST",
+            f"/bookmarks/end-user/{agent_id}/{bookmark_id}/share",
+            headers=self._headers(end_user_token),
+        )

@@ -392,7 +392,7 @@ client = AITeammate(
 | `memories` | `list`, `get`, `create`, `delete`, `search` |
 | `shares` | `create`, `list`, `delete`, `get_info`, `chat`, `upload_document`, `get_history` |
 | `end_users` | `register`, `verify`, `set_password`, `login`, `validate`, `forgot_password`, `google_auth_url`, `google_callback` |
-| `bookmarks` | `save`, `list`, `delete` |
+| `bookmarks` | `save`, `list`, `delete`, `share` |
 
 ## License
 
